@@ -9,7 +9,14 @@ public class produto {
 	String dt_aquisicao;
 	String nome;
 	String marca;
+	Integer id_local;
 
+	public Integer getId_local() {
+		return id_local;
+	}
+	public void setId_local(Integer id_local) {
+		this.id_local = id_local;
+	}
 	public String getMarca() {
 		return marca;
 	}

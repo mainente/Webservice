@@ -11,7 +11,8 @@ import com.google.gson.annotations.SerializedName;
 	public class inventario {
 		@SerializedName("dt_criacao")
 		private String dt_criacao; 
-		private Date dt_fim; 
+		@SerializedName("dt_fim")
+		private String dt_fim; 
 		private Integer id;
 		private String estado;
 		private String descricao;
@@ -22,10 +23,10 @@ import com.google.gson.annotations.SerializedName;
 		public void setDt_criacao(String string) {
 			this.dt_criacao = string;
 		}
-		public Date getDt_fim() {
+		public String getDt_fim() {
 			return dt_fim;
 		}
-		public void setDt_fim(Date dt_fim) {
+		public void setDt_fim(String dt_fim) {
 			this.dt_fim = dt_fim;
 		}
 		public Integer getId() {

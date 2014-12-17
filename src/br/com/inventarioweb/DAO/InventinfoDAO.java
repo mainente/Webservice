@@ -66,6 +66,45 @@ public class InventinfoDAO extends ConnectionFactory {
 		}
 		return invent;
 	}
+	public ArrayList<Inventinfo> listarTodosprodanteirior(String local_id){
+		Connection conexao = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Connection conexao2 = null;
+		PreparedStatement pstmt2 = null;
+		ResultSet rs2 = null;
+		ArrayList<Inventinfo> invent = null;
+		conexao = criarConexao();
+		invent = new ArrayList<Inventinfo>();
+		try {
+
+			pstmt2 = conexao.prepareStatement("select inventario._id from inventario,local where local._id=local_id and estado='fechado' and local._id="+local_id+"order by dt_criacao desc");
+			rs2 = pstmt2.executeQuery();
+			rs2.next();
+			pstmt = conexao.prepareStatement("select produto._id,nome from produto,produto_invent,tipo_produto where tipo_produto._id=id_tipo and produto_invent.produto_id=produto._id and produto_invent.invent_id="+rs2.getString("_id"));
+			rs = pstmt.executeQuery();
+			Inventinfo inventarioinf;
+			while(rs.next()){
+				 inventarioinf = new Inventinfo();
+				
+				inventarioinf.setId_produto(rs.getInt("_id"));
+				inventarioinf.setNome_prod(rs.getString("nome"));
+				invent.add(inventarioinf);
+			}
+			inventarioinf = new Inventinfo();
+			
+			inventarioinf.setId_produto(0);
+			inventarioinf.setNome_prod("");
+			invent.add(inventarioinf);
+			
+		} catch (Exception e) {
+			System.out.println("Erro ao listar todos os clientes: " + e);
+			e.printStackTrace();
+		} finally {
+			fecharConexao(conexao, pstmt, rs);
+		}
+		return invent;
+	}
 	public Inventinfo verificarprod(String inventario_id,String produto){
 		Connection conexao = null;
 		PreparedStatement pstmt = null;
@@ -83,7 +122,6 @@ public class InventinfoDAO extends ConnectionFactory {
 			while(rs.next()){
 				
 				inventarioinf.setId_produto(rs.getInt("_id"));
-				inventarioinf.setNome_prod(rs.getString("nome"));
 				}
 			
 		} catch (Exception e) {
@@ -94,25 +132,42 @@ public class InventinfoDAO extends ConnectionFactory {
 		}
 		return inventarioinf;
 	}
-	public  void deletar(Integer id){
+	public  void deletarinventproduto(Integer id_produto, Integer id_invent){
 		Connection conexao = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		ArrayList<local> clientes = null;
 		
 		conexao = criarConexao();
 		try {
-			pstmt = conexao.prepareStatement("Delete from cliente where id="+id);
-			rs = pstmt.executeQuery();
-		
+			pstmt = conexao.prepareStatement("Delete from produto_invent where produto_id="+id_produto+" and invent_id="+id_invent);
+			pstmt.executeUpdate();
 					
 		} catch (Exception e) {
-			System.out.println("Erro ao listar todos os clientes: " + e);
+			System.out.println("Erro ao deletar inventario: " + e);
 			e.printStackTrace();
 		} finally {
 			fecharConexao(conexao, pstmt, rs);
 		}
 	}
+	public  void inserirprodutoinvent(String produto_id,String invent_id){
+		Connection conexao = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		conexao = criarConexao();
+		try {
+			pstmt = conexao.prepareStatement("insert into produto_invent(produto_id,invent_id) values("+"'"+produto_id+"'"+","+"'"+invent_id+"'"+")");
+
+			pstmt.executeUpdate();
+					
+		} catch (Exception e) {
+			System.out.println("Erro ao inserir inventario: " + e+pstmt);
+			e.printStackTrace();
+		} finally {
+			fecharConexao(conexao, pstmt, rs);
+		}
+	}
+	
 	public  void fecharinvent(Integer id){
 		Connection conexao = null;
 		PreparedStatement pstmt = null;
@@ -133,61 +188,7 @@ public class InventinfoDAO extends ConnectionFactory {
 			fecharConexao(conexao, pstmt, rs);
 		}
 	}
-	public ArrayList<foto> imagem(String inventario_id){
-		 String imageDataString = null;
-		Connection conexao = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		ArrayList<foto> f = null;
-		conexao = criarConexao();
-		
-		f = new ArrayList<foto>();
-		try {
-		//	pstmt = conexao.prepareStatement("select _id,foto from produto,produto_invent where produto_invent.produto_id=produto._id and produto_invent.invent_id="+inventario_id);
-			//rs = pstmt.executeQuery();
-			Inventinfo inventarioinf;
-			//while(rs.next()){
-				// inventarioinf = new Inventinfo();
-				
-				//inventarioinf.setId_produto(rs.getInt("_id"));
-				//inventarioinf.setNome_prod(rs.getString("nome"));
-				//invent.add(inventarioinf);
-			//}
-			//inventarioinf = new Inventinfo();
-			
-			//inventarioinf.setId_produto(0);
-			//inventarioinf.setNome_prod("");
-			//invent.add(inventarioinf);
-			foto fo=new foto();
-			 File file = new File("/home/mainente/Imagens/cadeiranova.png");
-			 
-		        try {           
-		            // Reading a Image file from file system
-		            @SuppressWarnings("resource")
-					FileInputStream imageInFile = new FileInputStream(file);
-		            byte imageData[] = new byte[(int) file.length()];
-		            imageInFile.read(imageData);
-		 
-		            // Converting Image byte array into Base64 String
-		             imageDataString = encodeImage(imageData);
-		             fo.setNome(imageData);
-		             fo.setId(2);
-		             f.add(fo);
-		            System.out.println("Image Successfully Manipulated!");
-		        } catch (FileNotFoundException e) {
-		            System.out.println("Image not found" + e);
-		        } catch (IOException ioe) {
-		            System.out.println("Exception while reading the Image " + ioe);
-		        }
-			
-		} catch (Exception e) {
-			System.out.println("Erro ao listar todos os clientes: " + e);
-			e.printStackTrace();
-		} finally {
-			fecharConexao(conexao, pstmt, rs);
-		}
-		return f;
-	} 
+	
 	public Inventinfo AcharProdutoinvent(String id_prod,String id_invent){
 		Connection conexao = null;
 		PreparedStatement pstmt = null;
@@ -202,10 +203,10 @@ public class InventinfoDAO extends ConnectionFactory {
 			pstmt = conexao.prepareStatement("select _id from produto_invent where produto_id="+id_prod+"and invent_id="+id_invent);
 			rs = pstmt.executeQuery();
 			  prod_invent=new Inventinfo();
-				while(rs.next()){
+				rs.next();
 					prod_invent.setId(rs.getString("_id"));
 		
-				}
+				
 		} catch (Exception e) {
 			System.out.println("Erro ao listar todos os clientes: " + e);
 			e.printStackTrace();

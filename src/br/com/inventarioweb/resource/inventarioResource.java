@@ -21,6 +21,7 @@ import com.google.gson.JsonParser;
 
 import br.com.inventarioweb.DAO.InventDAO;
 import br.com.inventarioweb.DAO.InventinfoDAO;
+import br.com.inventarioweb.DAO.ProdutoDAO;
 import br.com.inventarioweb.controller.ProdutoController;
 import br.com.inventarioweb.controller.inventController;
 import br.com.inventarioweb.controller.inventinfoController;
@@ -59,17 +60,49 @@ public class inventarioResource {
 			return new inventinfoController().listarTodosprod(id);
 		}
 		@GET
+		@Path("/listarTodosprodanterior/{id}")
+		@Produces("application/json")
+		public ArrayList<Inventinfo> listarTodosprodanterior(@PathParam("id") String id){
+			//new ClienteDAO().deletar(2);
+			return new inventinfoController().listarTodosprodanterior(id);
+		}
+		
+		@GET
 		@Path("/verificarprod/{id}/{produto}")
 		@Produces("application/json")
 		public Inventinfo Verificarprod(@PathParam("id") String id,@PathParam("produto") String produto){
 			//new ClienteDAO().deletar(2);
 			return new inventinfoController().Verificarprod(id, produto);
 		}
+		@GET
+		@Path("/infoinvent/{id_invent}")
+		@Produces("application/json")
+		public inventario infoinvent(@PathParam("id_invent") String id_invent){
+			//new ClienteDAO().deletar(2);
+			return new inventController().Infoinvent(id_invent);
+		}
 		@Path("/DeletarInvent/{id}")
 		@DELETE
 		@Produces("application/json")
 		public void deletarinvent(@PathParam("id") int id){
 			new InventDAO().deletarinvent(id);
+			System.out.println("Enviando ");
+
+		}
+		@Path("/DeletarInventprod/{id_prod}/{id_invent}")
+		@DELETE
+		@Produces("application/json")
+		public void deletarinventprod(@PathParam("id_prod") int id_prod,@PathParam("id_invent") int id_invent){
+			new InventinfoDAO().deletarinventproduto(id_prod, id_invent);;
+			System.out.println("Enviando ");
+
+		}
+		@Path("/InserirInventprod/{id_prod}/{id_invent}")
+		@POST
+		@Produces("application/json")
+		public void inseririnventprod(@PathParam("id_prod") String id_prod,@PathParam("id_invent") String
+				id_invent){
+			new InventinfoDAO().inserirprodutoinvent(id_prod, id_invent);;
 			System.out.println("Enviando ");
 
 		}
@@ -84,7 +117,6 @@ public class inventarioResource {
 		@Path("/InserirInvent")
 		@POST
 		@Produces("application/json")
-	 //   @Consumes(MediaType.APPLICATION_JSON)
 		
 
 		public void inseririnvent(String invent){
@@ -99,13 +131,24 @@ public class inventarioResource {
 
 
 		}
-		@GET
-		@Path("/foto/{id}")
+		@Path("/salvarfoto/")
+		@POST
 		@Produces("application/json")
-		public ArrayList<foto> foto(@PathParam("id") String id){
-			//new ClienteDAO().deletar(2);
-			return new inventinfoController().foto(id);
+	 //   @Consumes(MediaType.APPLICATION_JSON)
+		
+
+		public void salvarfoto(String foto){
+			System.out.println(foto);
+
+			 Gson gson = new Gson();
+			 foto f= gson.fromJson(foto, foto.class);
+			 new ProdutoDAO().imagem(f);
+		
+
+
+
 		}
+		
 		@GET
 		@Path("/produto/{id}")
 		@Produces("application/json")
@@ -113,7 +156,13 @@ public class inventarioResource {
 			//new ClienteDAO().deletar(2);
 			return new ProdutoController().AcharProduto(id);
 		}
-		
+		@GET
+		@Path("/foto/{id}")
+		@Produces("application/json")
+		public foto foto(@PathParam("id") String id){
+			//new ClienteDAO().deletar(2);
+			return new ProdutoController().foto(id);
+		}
 		@GET
 		@Path("/produtoinventachar/{id_invent}/{id_prod}")
 		@Produces("application/json")

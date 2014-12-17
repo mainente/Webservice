@@ -35,7 +35,7 @@ public class InventDAO extends ConnectionFactory {
 		conexao = criarConexao();
 		invent = new ArrayList<inventario>();
 		try {
-			pstmt = conexao.prepareStatement("select * from inventario where local_id="+idlocal);
+			pstmt = conexao.prepareStatement("select * from inventario where local_id="+idlocal+ " order by dt_criacao desc");
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()){
@@ -63,11 +63,19 @@ public class InventDAO extends ConnectionFactory {
 	}
 	public  void deletarinvent(Integer id){
 		Connection conexao = null;
+		Connection conexao2 = null;
+
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
+		conexao2 = criarConexao();
+		PreparedStatement pstmt2 = null;
+		ResultSet rs2 = null;
+		
 		conexao = criarConexao();
 		try {
+			pstmt2 = conexao2.prepareStatement("Delete from produto_invent where invent_id="+id);
+			pstmt2.executeUpdate();
 			pstmt = conexao.prepareStatement("Delete from inventario where _id="+id);
 			pstmt.executeUpdate();
 					
@@ -90,11 +98,43 @@ public class InventDAO extends ConnectionFactory {
 			pstmt.executeUpdate();
 					
 		} catch (Exception e) {
-			System.out.println("Erro ao deletar inventario: " + e+pstmt);
+			System.out.println("Erro ao inserir inventario: " + e+pstmt);
 			e.printStackTrace();
 		} finally {
 			fecharConexao(conexao, pstmt, rs);
 		}
+	}
+	public inventario infoinvent(String id_inventario){
+		Connection conexao = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<inventario> invent = null;
+		PreparedStatement pstmt2 = null;
+		ResultSet rs2 = null;
+
+		conexao = criarConexao();
+		invent = new ArrayList<inventario>();
+		inventario inventario = new inventario();
+
+		try {
+			pstmt = conexao.prepareStatement("select * from inventario where _id="+id_inventario);
+			rs = pstmt.executeQuery();
+			
+			rs.next();
+				
+				inventario.setId(rs.getInt("_id"));
+				inventario.setNome(rs.getString("nome"));
+				inventario.setEstado(rs.getString("estado"));
+				inventario.setDt_criacao(rs.getString("dt_criacao"));
+				inventario.setDt_fim(rs.getString("dt_fim"));		
+				inventario.setDescricao(rs.getString("descricao"));
+		} catch (Exception e) {
+			System.out.println("Erro ao listar todos os clientes: " + e);
+			e.printStackTrace();
+		} finally {
+			fecharConexao(conexao, pstmt, rs);
+		}
+		return inventario;
 	}
 	
 
